@@ -66,7 +66,7 @@ func (s *service) UnprotectedEndpoints() []string {
 }
 
 func (s *service) Register(ss *grpc.Server) {
-	proto.RegisterHelloWorldServiceServer(ss, s)
+	proto.RegisterFileSenderServiceServer(ss, s)
 }
 
 func (s *service) Hello(ctx context.Context, req *proto.HelloRequest) (*proto.HelloResponse, error) {
