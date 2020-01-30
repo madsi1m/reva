@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package revad.filesender;
+
+option go_package = "proto";
+
+service FileSenderService {
+  rpc Hello(HelloRequest) returns (HelloResponse);
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 2;
+}
