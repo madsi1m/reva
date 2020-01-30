@@ -6,6 +6,11 @@ option go_package = "proto";
 
 service FileSenderService {
   rpc Hello(HelloRequest) returns (HelloResponse);
+  rpc ReadChunk(ReadChunkRequest) returns (ReadChunkResponse);
+  rpc WriteChunk(WriteChunkRequest) returns (WriteChunkResponse);
+  rpc CompleteFile(CompleteFileRequest) returns (CompleteFileResponse);
+  rpc DeleteFile(DeleteFileRequest) returns (DeleteFileResponse);
+  rpc StoreWholeFile(StoreWholeFileRequest) returns (StoreWholeFileResponse);
 }
 
 message HelloRequest {
@@ -15,3 +20,52 @@ message HelloRequest {
 message HelloResponse {
   string message = 2;
 }
+
+message ReadChunkRequest {
+  string file = 1;
+  int64 offset = 2;
+  int64 length = 3;
+}
+
+message ReadChunkResponse {
+  int32 error = 1;
+  string data = 2;
+}
+
+message WriteChunkRequest {
+  string file = 1;
+  string data = 2;
+  int64 offset = 3;
+}
+
+message WriteChunkResponse {
+  int32 error = 1;
+  int64 offset = 2;
+  int64 written = 3;
+}
+
+message CompleteFileRequest {
+  string file = 1;
+}
+
+message CompleteFileResponse {
+  int32 error = 1;
+}
+
+message DeleteFileRequest {
+  string file = 1;
+}
+
+message DeleteFileResponse {
+  int32 error = 1;
+}
+
+message StoreWholeFileRequest {
+  string file = 1;
+  string data = 2;
+}
+
+message StoreWholeFileResponse {
+  int32 error = 1;
+}
+

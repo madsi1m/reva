@@ -79,3 +79,41 @@ func (s *service) Hello(ctx context.Context, req *proto.HelloRequest) (*proto.He
 	}
 	return res, nil
 }
+
+func (s *service) ReadChunk(ctx context.Context, req *proto.ReadChunkRequest) (*proto.ReadChunkResponse, error) {
+	res := &proto.ReadChunkResponse{
+		Error: 0,
+		Data:  "",
+	}
+	return res, nil
+}
+
+func (s *service) WriteChunk(ctx context.Context, req *proto.WriteChunkRequest) (*proto.WriteChunkResponse, error) {
+	res := &proto.WriteChunkResponse{
+		Error:   0,
+		Offset:  -1,
+		Written: 0,
+	}
+	return res, nil
+}
+
+func (s *service) CompleteFile(ctx context.Context, req *proto.CompleteFileRequest) (*proto.CompleteFileResponse, error) {
+	res := &proto.CompleteFileResponse{
+		Error: 0,
+	}
+	return res, nil
+}
+
+func (s *service) DeleteFile(ctx context.Context, req *proto.DeleteFileRequest) (*proto.DeleteFileResponse, error) {
+	res := &proto.DeleteFileResponse{
+		Error: 0,
+	}
+	return res, nil
+}
+
+func (s *service) StoreWholeFile(ctx context.Context, req *proto.StoreWholeFileRequest) (*proto.StoreWholeFileResponse, error) {
+	res := &proto.StoreWholeFileResponse{
+		Error: 0,
+	}
+	return res, nil
+}
