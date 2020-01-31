@@ -7,6 +7,7 @@ namespace Revad\Filesender;
 use Google\Protobuf\Internal\GPBType;
 use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
+use Google\Protobuf\Internal\GPBWrapperUtils;
 
 /**
  * Generated from protobuf message <code>revad.filesender.WriteChunkResponse</code>
@@ -16,15 +17,15 @@ class WriteChunkResponse extends \Google\Protobuf\Internal\Message
     /**
      * Generated from protobuf field <code>int32 error = 1;</code>
      */
-    protected $error = 0;
+    private $error = 0;
     /**
      * Generated from protobuf field <code>int64 offset = 2;</code>
      */
-    protected $offset = 0;
+    private $offset = 0;
     /**
      * Generated from protobuf field <code>int64 written = 3;</code>
      */
-    protected $written = 0;
+    private $written = 0;
 
     /**
      * Constructor.

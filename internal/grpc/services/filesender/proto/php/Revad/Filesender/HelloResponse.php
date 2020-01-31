@@ -7,6 +7,7 @@ namespace Revad\Filesender;
 use Google\Protobuf\Internal\GPBType;
 use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
+use Google\Protobuf\Internal\GPBWrapperUtils;
 
 /**
  * Generated from protobuf message <code>revad.filesender.HelloResponse</code>
@@ -16,7 +17,7 @@ class HelloResponse extends \Google\Protobuf\Internal\Message
     /**
      * Generated from protobuf field <code>string message = 2;</code>
      */
-    protected $message = '';
+    private $message = '';
 
     /**
      * Constructor.
