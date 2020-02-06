@@ -22,6 +22,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"strings"
 
 	userpb "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
 	"github.com/cs3org/reva/pkg/appctx"
@@ -67,6 +68,7 @@ type attributes struct {
 	DisplayName string `mapstructure:"displayName"`
 	DN          string `mapstructure:"dn"`
 	CN          string `mapstructure:"cn"`
+	Extra       string `mapstructure:"extra"`
 }
 
 // Default attributes (Active Directory)
@@ -76,6 +78,7 @@ var ldapDefaults = attributes{
 	DisplayName: "displayName",
 	DN:          "dn",
 	CN:          "cn",
+	Extra:       "",
 }
 
 func parseConfig(m map[string]interface{}) (*config, error) {
@@ -124,12 +127,17 @@ func (m *manager) GetUser(ctx context.Context, uid *userpb.UserId) (*userpb.User
 		return nil, err
 	}
 
+	ldapattr := strings.Join([]string{m.schema.DN, m.schema.UID, m.schema.Mail, m.schema.DisplayName}, ",")
+	if m.schema.Extra != "" {
+		ldapattr = ldapattr + "," + m.schema.Extra
+	}
+
 	// Search for the given clientID
 	searchRequest := ldap.NewSearchRequest(
 		m.baseDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		fmt.Sprintf(m.userfilter, uid.OpaqueId), // TODO this is screaming for errors if filter contains >1 %s
-		[]string{m.schema.DN, m.schema.UID, m.schema.Mail, m.schema.DisplayName},
+		strings.Split(ldapattr, ","),
 		nil,
 	)
 
