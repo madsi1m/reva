@@ -12,6 +12,7 @@ require (
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/go-openapi/strfmt v0.19.2 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
+	github.com/gogo/protobuf v1.2.0 // indirect
 	github.com/golang/protobuf v1.3.3
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4
@@ -30,7 +31,7 @@ require (
 	go.opencensus.io v0.22.1
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect
-	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect
+	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
 	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
 	golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9 // indirect
 	golang.org/x/tools v0.0.0-20200129232805-c8253cffe24b // indirect
