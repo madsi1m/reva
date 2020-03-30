@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ func isContentRange(r *http.Request) bool {
 	return r.Header.Get("Content-Range") != ""
 }
 
-func (s *svc) doPut(w http.ResponseWriter, r *http.Request, ns string) {
+func (s *svc) handlePut(w http.ResponseWriter, r *http.Request, ns string) {
 	ctx := r.Context()
 	log := appctx.GetLogger(ctx)
 	fn := path.Join(ns, r.URL.Path)
@@ -120,7 +120,7 @@ func (s *svc) doPut(w http.ResponseWriter, r *http.Request, ns string) {
 	}
 
 	if ok {
-		s.doPutChunked(w, r)
+		s.handlePutChunked(w, r)
 		return
 	}
 

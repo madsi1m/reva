@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -282,7 +282,7 @@ func (s *service) GetPath(ctx context.Context, req *provider.GetPathRequest) (*p
 }
 
 func (s *service) GetHome(ctx context.Context, req *provider.GetHomeRequest) (*provider.GetHomeResponse, error) {
-	home, err := s.storage.GetHome(ctx)
+	relativeHome, err := s.storage.GetHome(ctx)
 	if err != nil {
 		st := status.NewInternal(ctx, err, "error getting home")
 		return &provider.GetHomeResponse{
@@ -290,12 +290,13 @@ func (s *service) GetHome(ctx context.Context, req *provider.GetHomeRequest) (*p
 		}, nil
 	}
 
-	home = path.Join(s.mountPath, home)
+	home := path.Join(s.mountPath, path.Clean(relativeHome))
 
 	res := &provider.GetHomeResponse{
 		Status: status.NewOK(ctx),
 		Path:   home,
 	}
+
 	return res, nil
 }
 
@@ -693,7 +694,20 @@ func (s *service) CreateReference(ctx context.Context, req *provider.CreateRefer
 		}, nil
 	}
 
-	if err := s.storage.CreateReference(ctx, req.Path, u); err != nil {
+	ref := &provider.Reference{
+		Spec: &provider.Reference_Path{
+			Path: req.Path,
+		},
+	}
+
+	newRef, err := s.unwrap(ctx, ref)
+	if err != nil {
+		return &provider.CreateReferenceResponse{
+			Status: status.NewInternal(ctx, err, "error unwrapping path"),
+		}, nil
+	}
+
+	if err := s.storage.CreateReference(ctx, newRef.GetPath(), u); err != nil {
 		log.Err(err).Msg("error calling CreateReference")
 		return &provider.CreateReferenceResponse{
 			Status: status.NewInternal(ctx, err, "error creating reference"),

@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import (
 )
 
 // ns is the namespace that is prefixed to the path in the cs3 namespace
-func (s *svc) doPropfind(w http.ResponseWriter, r *http.Request, ns string) {
+func (s *svc) handlePropfind(w http.ResponseWriter, r *http.Request, ns string) {
 	ctx := r.Context()
 	ctx, span := trace.StartSpan(ctx, "propfind")
 	defer span.End()
@@ -68,7 +68,7 @@ func (s *svc) doPropfind(w http.ResponseWriter, r *http.Request, ns string) {
 	req := &provider.StatRequest{Ref: ref}
 	res, err := client.Stat(ctx, req)
 	if err != nil {
-		log.Error().Err(err).Msg("error sending a grpc stat request")
+		log.Error().Err(err).Msgf("error sending a grpc stat request to ref:%+v", ref)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

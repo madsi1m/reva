@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package ocs
 
 import (
 	"encoding/xml"
+	"fmt"
 	"net/http"
 )
 
@@ -144,7 +145,9 @@ func (h *CapabilitiesHandler) init(c *Config) {
 		h.c.Capabilities.FilesSharing.Public = &CapabilitiesFilesSharingPublic{}
 	}
 
+	fmt.Printf("\n\n\n HERE \n\n\n")
 	// h.c.Capabilities.FilesSharing.Public.Enabled is boolean
+	h.c.Capabilities.FilesSharing.Public.Enabled = true
 
 	if h.c.Capabilities.FilesSharing.Public.Password == nil {
 		h.c.Capabilities.FilesSharing.Public.Password = &CapabilitiesFilesSharingPublicPassword{}
@@ -287,9 +290,10 @@ type CapabilitiesFiles struct {
 
 // CapabilitiesDav holds dav endpoint config
 type CapabilitiesDav struct {
-	Chunking string   `json:"chunking" xml:"chunking"`
-	Trashbin string   `json:"trashbin" xml:"trashbin"`
-	Reports  []string `json:"reports" xml:"reports>element" mapstructure:"reports"`
+	Chunking                       string   `json:"chunking" xml:"chunking"`
+	Trashbin                       string   `json:"trashbin" xml:"trashbin"`
+	Reports                        []string `json:"reports" xml:"reports>element" mapstructure:"reports"`
+	ChunkingParallelUploadDisabled bool     `json:"chunkingParallelUploadDisabled" xml:"chunkingParallelUploadDisabled"`
 }
 
 // CapabilitiesFilesSharing TODO document

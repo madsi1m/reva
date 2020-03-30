@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ func lsCommand() *command {
 			}
 
 			if *longFlag {
-				fmt.Printf("%+v %d %d %v %s\n", info.PermissionSet, info.Mtime, info.Size, info.Id, p)
+				fmt.Printf("%s %d %d %v %s\n", info.Type, info.Mtime, info.Size, info.Id, p)
 			} else {
 				fmt.Println(p)
 			}

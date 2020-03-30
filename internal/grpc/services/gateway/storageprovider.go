@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,10 +31,8 @@ import (
 	"github.com/cs3org/reva/pkg/errtypes"
 	"github.com/cs3org/reva/pkg/rgrpc/status"
 	"github.com/cs3org/reva/pkg/rgrpc/todo/pool"
-	"github.com/cs3org/reva/pkg/user"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 // transerClaims are custom claims for a JWT token to be used between the metadata and data gateways.
@@ -44,12 +42,10 @@ type transferClaims struct {
 }
 
 func (s *svc) sign(ctx context.Context, target string) (string, error) {
-	u := user.ContextMustGetUser(ctx)
 	ttl := time.Duration(s.c.TranserExpires) * time.Second
 	claims := transferClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(ttl).Unix(),
-			Issuer:    u.Id.Idp,
 			Audience:  "reva",
 			IssuedAt:  time.Now().Unix(),
 		},
@@ -111,6 +107,8 @@ func (s *svc) CreateHome(ctx context.Context, req *provider.CreateHomeRequest) (
 
 }
 func (s *svc) GetHome(ctx context.Context, req *provider.GetHomeRequest) (*provider.GetHomeResponse, error) {
+	log := appctx.GetLogger(ctx)
+
 	c, err := pool.GetStorageRegistryClient(s.c.StorageRegistryEndpoint)
 	if err != nil {
 		err = errors.Wrap(err, "gateway: error getting storage registry client")
@@ -134,6 +132,8 @@ func (s *svc) GetHome(ctx context.Context, req *provider.GetHomeRequest) (*provi
 		}, nil
 	}
 
+	log.Info().Msg("gateway: home for user at provider=" + res.Provider.Address)
+
 	storageClient, err := pool.GetStorageProviderServiceClient(res.Provider.Address)
 	if err != nil {
 		err = errors.Wrap(err, "gateway: error getting storage provider client")
@@ -149,10 +149,12 @@ func (s *svc) GetHome(ctx context.Context, req *provider.GetHomeRequest) (*provi
 			Status: status.NewInternal(ctx, err, "error getting home"),
 		}, nil
 	}
+
 	return homeRes, nil
 }
 
 func (s *svc) InitiateFileDownload(ctx context.Context, req *provider.InitiateFileDownloadRequest) (*gateway.InitiateFileDownloadResponse, error) {
+	log := appctx.GetLogger(ctx)
 	c, err := s.find(ctx, req.Ref)
 	if err != nil {
 		if _, ok := err.(errtypes.IsNotFound); ok {
@@ -205,6 +207,7 @@ func (s *svc) InitiateFileDownload(ctx context.Context, req *provider.InitiateFi
 }
 
 func (s *svc) InitiateFileUpload(ctx context.Context, req *provider.InitiateFileUploadRequest) (*gateway.InitiateFileUploadResponse, error) {
+	log := appctx.GetLogger(ctx)
 	c, err := s.find(ctx, req.Ref)
 	if err != nil {
 		if _, ok := err.(errtypes.IsNotFound); ok {
@@ -230,7 +233,7 @@ func (s *svc) InitiateFileUpload(ctx context.Context, req *provider.InitiateFile
 	}
 
 	if storageRes.Expose {
-		log.Info().Msg("download is routed directly to data server - skiping datagateway")
+		log.Info().Msg("upload is routed directly to data server - skiping datagateway")
 		return res, nil
 	}
 
@@ -307,10 +310,46 @@ func (s *svc) Delete(ctx context.Context, req *provider.DeleteRequest) (*provide
 }
 
 func (s *svc) Move(ctx context.Context, req *provider.MoveRequest) (*provider.MoveResponse, error) {
-	res := &provider.MoveResponse{
-		Status: status.NewUnimplemented(ctx, nil, "Move not yet implemented"),
+	srcP, err := s.findProvider(ctx, req.Source)
+	if err != nil {
+		if _, ok := err.(errtypes.IsNotFound); ok {
+			return &provider.MoveResponse{
+				Status: status.NewNotFound(ctx, "source storage provider not found"),
+			}, nil
+		}
+		return &provider.MoveResponse{
+			Status: status.NewInternal(ctx, err, "error finding storage provider"),
+		}, nil
 	}
-	return res, nil
+
+	dstP, err := s.findProvider(ctx, req.Destination)
+	if err != nil {
+		if _, ok := err.(errtypes.IsNotFound); ok {
+			return &provider.MoveResponse{
+				Status: status.NewNotFound(ctx, "destination storage provider not found"),
+			}, nil
+		}
+		return &provider.MoveResponse{
+			Status: status.NewInternal(ctx, err, "error finding storage provider"),
+		}, nil
+	}
+
+	// if providers are not the same we do not implement cross storage copy yet.
+	if srcP.Address != dstP.Address {
+		res := &provider.MoveResponse{
+			Status: status.NewUnimplemented(ctx, nil, "gateway: cross storage copy not yet implemented"),
+		}
+		return res, nil
+	}
+
+	c, err := s.getStorageProviderClient(ctx, srcP)
+	if err != nil {
+		return &provider.MoveResponse{
+			Status: status.NewInternal(ctx, err, "error connecting to storage provider="+srcP.Address),
+		}, nil
+	}
+
+	return c.Move(ctx, req)
 }
 
 func (s *svc) SetArbitraryMetadata(ctx context.Context, req *provider.SetArbitraryMetadataRequest) (*provider.SetArbitraryMetadataResponse, error) {
@@ -356,7 +395,6 @@ func (s *svc) UnsetArbitraryMetadata(ctx context.Context, req *provider.UnsetArb
 }
 
 func (s *svc) Stat(ctx context.Context, req *provider.StatRequest) (*provider.StatResponse, error) {
-	// TODO(refs) do we need to append home to every stat request?
 	c, err := s.find(ctx, req.Ref)
 	if err != nil {
 		if _, ok := err.(errtypes.IsNotFound); ok {
@@ -545,6 +583,24 @@ func (s *svc) findByPath(ctx context.Context, path string) (provider.ProviderAPI
 }
 
 func (s *svc) find(ctx context.Context, ref *provider.Reference) (provider.ProviderAPIClient, error) {
+	p, err := s.findProvider(ctx, ref)
+	if err != nil {
+		return nil, err
+	}
+	return s.getStorageProviderClient(ctx, p)
+}
+
+func (s *svc) getStorageProviderClient(ctx context.Context, p *registry.ProviderInfo) (provider.ProviderAPIClient, error) {
+	c, err := pool.GetStorageProviderServiceClient(p.Address)
+	if err != nil {
+		err = errors.Wrap(err, "gateway: error getting a storage provider client")
+		return nil, err
+	}
+
+	return c, nil
+}
+
+func (s *svc) findProvider(ctx context.Context, ref *provider.Reference) (*registry.ProviderInfo, error) {
 	c, err := pool.GetStorageRegistryClient(s.c.StorageRegistryEndpoint)
 	if err != nil {
 		err = errors.Wrap(err, "gateway: error getting storage registry client")
@@ -560,20 +616,18 @@ func (s *svc) find(ctx context.Context, ref *provider.Reference) (provider.Provi
 		return nil, err
 	}
 
-	if res.Status.Code == rpc.Code_CODE_OK && res.Provider != nil {
-		// TODO(labkode): check for capabilities here
-		c, err := pool.GetStorageProviderServiceClient(res.Provider.Address)
-		if err != nil {
-			err = errors.Wrap(err, "gateway: error getting a storage provider client")
-			return nil, err
+	if res.Status.Code != rpc.Code_CODE_OK {
+		if res.Status.Code == rpc.Code_CODE_NOT_FOUND {
+			return nil, errtypes.NotFound("gateway: storage provider not found for reference:" + ref.String())
 		}
-
-		return c, nil
+		err := status.NewErrorFromCode(res.Status.Code, "gateway")
+		return nil, err
 	}
 
-	if res.Status.Code == rpc.Code_CODE_NOT_FOUND {
-		return nil, errtypes.NotFound("gateway: storage provider not found for reference:" + ref.String())
+	if res.Provider == nil {
+		err := errors.New("gateway: provider is nil")
+		return nil, err
 	}
 
-	return nil, errors.New("gateway: error finding a storage provider")
+	return res.Provider, nil
 }

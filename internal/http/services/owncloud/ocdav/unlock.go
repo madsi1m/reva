@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,6 @@ import (
 )
 
 //TODO(jfd): implement unlock
-func (s *svc) doUnlock(w http.ResponseWriter, r *http.Request, ns string) {
-	w.WriteHeader(http.StatusNoContent)
+func (s *svc) handleUnlock(w http.ResponseWriter, r *http.Request, ns string) {
+	w.WriteHeader(http.StatusNotImplemented)
 }

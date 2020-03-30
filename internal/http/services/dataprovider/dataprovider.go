@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,11 +35,10 @@ func init() {
 }
 
 type config struct {
-	Prefix       string                            `mapstructure:"prefix"`
-	Driver       string                            `mapstructure:"driver"`
-	TmpFolder    string                            `mapstructure:"tmp_folder"`
-	Drivers      map[string]map[string]interface{} `mapstructure:"drivers"`
-	ProviderPath string                            `mapstructure:"provider_path"`
+	Prefix    string                            `mapstructure:"prefix"`
+	Driver    string                            `mapstructure:"driver"`
+	TmpFolder string                            `mapstructure:"tmp_folder"`
+	Drivers   map[string]map[string]interface{} `mapstructure:"drivers"`
 }
 
 type svc struct {

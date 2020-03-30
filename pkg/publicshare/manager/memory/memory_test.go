@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,13 +41,19 @@ func TestMemoryProvider(t *testing.T) {
 	rInfo := provider.ResourceInfo{}
 	grant := link.Grant{}
 
+	rInfo.ArbitraryMetadata = &provider.ArbitraryMetadata{
+		Metadata: map[string]string{
+			"name": "woof",
+		},
+	}
+
 	// create a new public share
 	share, _ := manager.CreatePublicShare(context.Background(), &user, &rInfo, &grant)
 
 	// store its token for further retrieval
 	shareToken := share.GetToken()
 
-	// Test updating a public share. test with --race
+	// Test updating a public share.
 	existingRefToken := link.PublicShareReference{
 		Spec: &link.PublicShareReference_Token{
 			Token: shareToken,
@@ -61,10 +67,8 @@ func TestMemoryProvider(t *testing.T) {
 	updatedMtime := &types.Timestamp{Seconds: uint64(46800)}
 
 	newGrant := link.Grant{
-		Permissions: &link.PublicSharePermissions{
-			Permissions: &provider.ResourcePermissions{}, // add some permissions maybe?
-		},
-		Expiration: updatedMtime,
+		Permissions: &link.PublicSharePermissions{},
+		Expiration:  updatedMtime,
 	}
 
 	// attempt to update an invalid public share. we expect an error
@@ -101,7 +105,7 @@ func TestMemoryProvider(t *testing.T) {
 	}
 
 	// test listing public shares
-	listPs, err := manager.ListPublicShares(context.Background(), &user, &rInfo)
+	listPs, err := manager.ListPublicShares(context.Background(), &user, nil, &rInfo)
 	if err != nil {
 		t.Error(err)
 	}

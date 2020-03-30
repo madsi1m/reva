@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -218,7 +218,7 @@ func (s *svc) saveChunk(ctx context.Context, path string, r io.ReadCloser) (bool
 	tempFileName := assembledFileName
 	return true, tempFileName, nil
 }
-func (s *svc) doPutChunked(w http.ResponseWriter, r *http.Request) {
+func (s *svc) handlePutChunked(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := appctx.GetLogger(ctx)
 
@@ -296,6 +296,7 @@ func (s *svc) doPutChunked(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	w.WriteHeader(http.StatusCreated)
 
 	// TODO(labkode): implement old chunking
 

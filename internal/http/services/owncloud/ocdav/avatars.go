@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ func (h *AvatarsHandler) Handler(s *svc) http.Handler {
 			// no need for the user, and we need to be able
 			// to answer preflight checks, which have no auth headers
 			r.URL.Path = "/" // always use / ... we just want the options answered so phoenix doesnt hiccup
-			s.doOptions(w, r, "avatars")
+			s.handleOptions(w, r, "avatars")
 			return
 		}
 

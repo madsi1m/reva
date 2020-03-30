@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import (
 )
 
 // TODO(jfd) implement lock
-func (s *svc) doLock(w http.ResponseWriter, r *http.Request, ns string) {
+func (s *svc) handleLock(w http.ResponseWriter, r *http.Request, ns string) {
 	log := appctx.GetLogger(r.Context())
 	xml := `<?xml version="1.0" encoding="utf-8"?>
 	<prop xmlns="DAV:">

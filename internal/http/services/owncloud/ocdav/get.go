@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import (
 	"github.com/cs3org/reva/pkg/rhttp"
 )
 
-func (s *svc) doGet(w http.ResponseWriter, r *http.Request, ns string) {
+func (s *svc) handleGet(w http.ResponseWriter, r *http.Request, ns string) {
 	ctx := r.Context()
 	log := appctx.GetLogger(ctx)
 	fn := path.Join(ns, r.URL.Path)
@@ -57,7 +57,11 @@ func (s *svc) doGet(w http.ResponseWriter, r *http.Request, ns string) {
 
 	if sRes.Status.Code != rpc.Code_CODE_OK {
 		log.Warn().Str("code", string(sRes.Status.Code)).Msg("grpc request failed")
-		w.WriteHeader(http.StatusInternalServerError)
+		statusCode := http.StatusInternalServerError
+		if sRes.Status.Code == rpc.Code_CODE_NOT_FOUND {
+			statusCode = http.StatusNotFound
+		}
+		w.WriteHeader(statusCode)
 		return
 	}
 

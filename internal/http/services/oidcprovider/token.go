@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ func (s *svc) doToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If this is a client_credentials grant, grant all scopes the client is allowed to perform.
-	if accessRequest.GetGrantTypes().Exact("client_credentials") {
+	if accessRequest.GetGrantTypes().ExactOne("client_credentials") {
 		for _, scope := range accessRequest.GetRequestedScopes() {
 			if fosite.HierarchicScopeStrategy(accessRequest.GetClient().GetScopes(), scope) {
 				accessRequest.GrantScope(scope)

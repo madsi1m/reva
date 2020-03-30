@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ func (s *svc) doGet(w http.ResponseWriter, r *http.Request) {
 		fn = files[0]
 	}
 
-	fsfn := strings.TrimPrefix(fn, s.conf.ProviderPath)
+	fsfn := strings.TrimPrefix(fn, s.conf.Prefix)
 	ref := &provider.Reference{Spec: &provider.Reference_Path{Path: fsfn}}
 
 	rc, err := s.storage.Download(ctx, ref)

@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ func (h *VersionsHandler) Handler(s *svc, rid *provider.ResourceId) http.Handler
 		var key string
 		key, r.URL.Path = router.ShiftPath(r.URL.Path)
 		if r.Method == http.MethodOptions {
-			s.doOptions(w, r, "versions")
+			s.handleOptions(w, r, "versions")
 			return
 		}
 		if key == "" && r.Method == "PROPFIND" {

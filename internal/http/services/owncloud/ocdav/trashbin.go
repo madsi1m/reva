@@ -1,4 +1,4 @@
-// Copyright 2018-2019 CERN
+// Copyright 2018-2020 CERN
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ func (h *TrashbinHandler) Handler(s *svc) http.Handler {
 		log := appctx.GetLogger(ctx)
 
 		if r.Method == http.MethodOptions {
-			s.doOptions(w, r, "trashbin")
+			s.handleOptions(w, r, "trashbin")
 			return
 		}
 
