@@ -16,7 +16,7 @@ require (
 	github.com/cs3org/go-cs3apis v0.0.0-20210104105209-0d3ecb3453dc
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/eventials/go-tus v0.0.0-20200718001131-45c7ec8f5d59
-	github.com/go-ldap/ldap/v3 v3.2.4
+	github.com/go-ldap/ldap/v3 v3.4.3
 	github.com/go-openapi/errors v0.19.6 // indirect
 	github.com/go-openapi/strfmt v0.19.2 // indirect
 	github.com/go-sql-driver/mysql v1.5.0
@@ -46,8 +46,8 @@ require (
 	github.com/studio-b12/gowebdav v0.0.0-20200303150724-9380631c29a1
 	github.com/tus/tusd v1.1.1-0.20200416115059-9deabf9d80c2
 	go.opencensus.io v0.22.5
-	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
-	golang.org/x/net v0.0.0-20200625001655-4c5254603344
+	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/grpc v1.33.2
 )
